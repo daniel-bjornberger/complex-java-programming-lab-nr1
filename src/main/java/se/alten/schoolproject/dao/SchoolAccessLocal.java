@@ -10,11 +10,11 @@ public interface SchoolAccessLocal {
 
     List listAllStudents() throws Exception;
 
-    StudentModel addStudent(String studentModel);
+    StudentModel addStudent(String studentJsonString);
 
-    void removeStudent(String student);
+    void removeStudent(String email);
 
     void updateStudent(String firstName, String lastName, String email);
 
-    void updateStudentPartial(String studentModel);
+    void updateStudentPartial(String studentJsonString);
 }

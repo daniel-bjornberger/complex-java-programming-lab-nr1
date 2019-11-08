@@ -6,6 +6,7 @@ import se.alten.schoolproject.transaction.StudentTransactionAccess;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -19,13 +20,21 @@ public class SchoolDataAccess implements SchoolAccessLocal, SchoolAccessRemote {
     StudentTransactionAccess studentTransactionAccess;
 
     @Override
-    public List listAllStudents(){
-        return studentTransactionAccess.listAllStudents();
+    public List listAllStudents() {
+        //return studentTransactionAccess.listAllStudents();
+        List studentList = studentTransactionAccess.listAllStudents();
+        List<StudentModel> studentModelList = new ArrayList<>();
+        //System.out.println("PRINT IN CONSOLE: listAllStudents");
+
+        for (Object student: studentList) {
+            studentModelList.add(new StudentModel().toModel((Student) student));
+        }
+        return studentModelList;
     }
 
     @Override
-    public StudentModel addStudent(String newStudent) {
-        Student studentToAdd = student.toEntity(newStudent);
+    public StudentModel addStudent(String studentJsonString) {
+        Student studentToAdd = student.toEntity(studentJsonString);
         boolean checkForEmptyVariables = Stream.of(studentToAdd.getFirstName(), studentToAdd.getLastName(), studentToAdd.getEmail()).anyMatch(String::isBlank);
 
         if (checkForEmptyVariables) {
@@ -38,8 +47,8 @@ public class SchoolDataAccess implements SchoolAccessLocal, SchoolAccessRemote {
     }
 
     @Override
-    public void removeStudent(String studentEmail) {
-        studentTransactionAccess.removeStudent(studentEmail);
+    public void removeStudent(String email) {
+        studentTransactionAccess.removeStudent(email);
     }
 
     @Override
@@ -48,8 +57,8 @@ public class SchoolDataAccess implements SchoolAccessLocal, SchoolAccessRemote {
     }
 
     @Override
-    public void updateStudentPartial(String studentModel) {
-        Student studentToUpdate = student.toEntity(studentModel);
+    public void updateStudentPartial(String studentJsonString) {
+        Student studentToUpdate = student.toEntity(studentJsonString);
         studentTransactionAccess.updateStudentPartial(studentToUpdate);
     }
 }

@@ -24,26 +24,26 @@ public class StudentTransaction implements StudentTransactionAccess{
     }
 
     @Override
-    public Student addStudent(Student studentToAdd) {
+    public Student addStudent(Student student) {
         try {
-            entityManager.persist(studentToAdd);
+            entityManager.persist(student);
             entityManager.flush();
-            return studentToAdd;
+            return student;
         } catch ( PersistenceException pe ) {
-            studentToAdd.setFirstName("duplicate");
-            return studentToAdd;
+            student.setFirstName("duplicate");
+            return student;
         }
     }
 
     @Override
-    public void removeStudent(String student) {
+    public void removeStudent(String email) {
         //JPQL Query
         Query query = entityManager.createQuery("DELETE FROM Student s WHERE s.email = :email");
 
         //Native Query
         //Query query = entityManager.createNativeQuery("DELETE FROM student WHERE email = :email", Student.class);
 
-        query.setParameter("email", student)
+        query.setParameter("email", email)
              .executeUpdate();
     }
 

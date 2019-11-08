@@ -35,11 +35,11 @@ public class StudentController {
     @Path("/addstudent")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({"application/JSON"})
-    public Response addStudent(String studentModel) {
+    public Response addStudent(String studentJsonString) {
         System.out.println("PRINT IN CONSOLE: addStudent");
         try {
 
-            StudentModel answer = sal.addStudent(studentModel);
+            StudentModel answer = sal.addStudent(studentJsonString);
 
             System.out.println("PRINT IN CONSOLE: " + answer.getFirstName());
 
@@ -76,7 +76,7 @@ public class StudentController {
 
     @PATCH
     @Path("updatepartialstudent")
-    public void updatePartialAStudent(String studentModel) {
-        sal.updateStudentPartial(studentModel);
+    public void updatePartialStudent(String studentJsonString) {
+        sal.updateStudentPartial(studentJsonString);
     }
 }
