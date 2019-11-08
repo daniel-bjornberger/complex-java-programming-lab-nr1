@@ -23,11 +23,11 @@ public class Student implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "forename")
-    private String forename;
+    @Column(name = "firstname")
+    private String firstName;
 
     @Column(name = "lastname")
-    private String lastname;
+    private String lastName;
 
     @Column(name = "email", unique = true)
     private String email;
@@ -38,16 +38,16 @@ public class Student implements Serializable {
         JsonObject jsonObject = reader.readObject();
 
         Student student = new Student();
-        if ( jsonObject.containsKey("forename")) {
-            student.setForename(jsonObject.getString("forename"));
+        if ( jsonObject.containsKey("firstname")) {
+            student.setFirstName(jsonObject.getString("firstname"));
         } else {
-            student.setForename("");
+            student.setFirstName("");
         }
 
         if ( jsonObject.containsKey("lastname")) {
-            student.setLastname(jsonObject.getString("lastname"));
+            student.setLastName(jsonObject.getString("lastname"));
         } else {
-            student.setLastname("");
+            student.setLastName("");
         }
 
         if ( jsonObject.containsKey("email")) {

@@ -30,7 +30,7 @@ public class StudentTransaction implements StudentTransactionAccess{
             entityManager.flush();
             return studentToAdd;
         } catch ( PersistenceException pe ) {
-            studentToAdd.setForename("duplicate");
+            studentToAdd.setFirstName("duplicate");
             return studentToAdd;
         }
     }
@@ -48,10 +48,10 @@ public class StudentTransaction implements StudentTransactionAccess{
     }
 
     @Override
-    public void updateStudent(String forename, String lastname, String email) {
-        Query updateQuery = entityManager.createNativeQuery("UPDATE student SET forename = :forename, lastname = :lastname WHERE email = :email", Student.class);
-        updateQuery.setParameter("forename", forename)
-                   .setParameter("lastname", lastname)
+    public void updateStudent(String firstName, String lastName, String email) {
+        Query updateQuery = entityManager.createNativeQuery("UPDATE student SET firstname = :firstname, lastname = :lastname WHERE email = :email", Student.class);
+        updateQuery.setParameter("firstname", firstName)
+                   .setParameter("lastname", lastName)
                    .setParameter("email", email)
                    .executeUpdate();
     }
@@ -61,8 +61,8 @@ public class StudentTransaction implements StudentTransactionAccess{
         Student studentFound = (Student)entityManager.createQuery("SELECT s FROM Student s WHERE s.email = :email")
                 .setParameter("email", student.getEmail()).getSingleResult();
 
-        Query query = entityManager.createQuery("UPDATE Student SET forename = :studentForename WHERE email = :email");
-        query.setParameter("studentForename", student.getForename())
+        Query query = entityManager.createQuery("UPDATE Student SET firstname = :studentfirstname WHERE email = :email");
+        query.setParameter("studentfirstname", student.getFirstName())
                 .setParameter("email", studentFound.getEmail())
                 .executeUpdate();
     }

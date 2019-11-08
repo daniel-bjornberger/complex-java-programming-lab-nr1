@@ -20,6 +20,7 @@ public class StudentController {
     private SchoolAccessLocal sal;
 
     @GET
+    @Path("/getallstudents")
     @Produces({"application/JSON"})
     public Response showStudents() {
         try {
@@ -31,21 +32,18 @@ public class StudentController {
     }
 
     @POST
-    @Path("/add")
+    @Path("/addstudent")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces({"application/JSON"})
-    /**
-     * JavaDoc
-     */
     public Response addStudent(String studentModel) {
         System.out.println("PRINT IN CONSOLE: addStudent");
         try {
 
             StudentModel answer = sal.addStudent(studentModel);
 
-            System.out.println("PRINT IN CONSOLE: " + answer.getForename());
+            System.out.println("PRINT IN CONSOLE: " + answer.getFirstName());
 
-            switch ( answer.getForename()) {
+            switch ( answer.getFirstName()) {
                 case "empty":
                     return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{\"Fill in all details please\"}").build();
                 case "duplicate":
@@ -54,12 +52,13 @@ public class StudentController {
                     return Response.ok(answer).build();
             }
         } catch ( Exception e ) {
+            System.out.println("PRINT IN CONSOLE: EXCEPTION IN STUDENTCONTROLLER!");
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
     }
 
     @DELETE
-    @Path("{email}")
+    @Path("deletestudent/{email}")
     public Response deleteUser( @PathParam("email") String email) {
         try {
             sal.removeStudent(email);
@@ -70,11 +69,13 @@ public class StudentController {
     }
 
     @PUT
-    public void updateStudent( @QueryParam("forename") String forename, @QueryParam("lastname") String lastname, @QueryParam("email") String email) {
-        sal.updateStudent(forename, lastname, email);
+    @Path("updatestudent")
+    public void updateStudent( @QueryParam("firstname") String firstName, @QueryParam("lastname") String lastName, @QueryParam("email") String email) {
+        sal.updateStudent(firstName, lastName, email);
     }
 
     @PATCH
+    @Path("updatepartialstudent")
     public void updatePartialAStudent(String studentModel) {
         sal.updateStudentPartial(studentModel);
     }

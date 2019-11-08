@@ -11,22 +11,22 @@ import se.alten.schoolproject.entity.Student;
 public class StudentModel {
 
     private Long id;
-    private String forename;
-    private String lastname;
+    private String firstName;
+    private String lastName;
     private String email;
 
     public StudentModel toModel(Student student) {
         StudentModel studentModel = new StudentModel();
-        switch (student.getForename()) {
+        switch (student.getFirstName()) {
             case "empty":
-                studentModel.setForename("empty");
+                studentModel.setFirstName("empty");
                 return studentModel;
             case "duplicate":
-                studentModel.setForename("duplicate");
+                studentModel.setFirstName("duplicate");
                 return studentModel;
             default:
-                studentModel.setForename(student.getForename());
-                studentModel.setLastname(student.getLastname());
+                studentModel.setFirstName(student.getFirstName());
+                studentModel.setLastName(student.getLastName());
                 studentModel.setEmail(student.getEmail());
                 return studentModel;
         }
