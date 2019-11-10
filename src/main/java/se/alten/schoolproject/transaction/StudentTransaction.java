@@ -17,23 +17,25 @@ public class StudentTransaction implements StudentTransactionAccess{
     @PersistenceContext(unitName="school")
     private EntityManager entityManager;
 
+
     @Override
     public List listAllStudents() {
         Query query = entityManager.createQuery("SELECT s from Student s");
         return query.getResultList();
     }
 
+
     @Override
-    public Student addStudent(Student student) {
+    public void addStudent(Student student) {
         try {
             entityManager.persist(student);
             entityManager.flush();
-            return student;
-        } catch ( PersistenceException pe ) {
-            student.setFirstName("duplicate");
-            return student;
+        } catch (PersistenceException pe) {
+            //student.setFirstName("duplicate");
+            System.out.println("PERSISTENCE EXCEPTION!");
         }
     }
+
 
     @Override
     public void removeStudent(String email) {
@@ -47,18 +49,20 @@ public class StudentTransaction implements StudentTransactionAccess{
              .executeUpdate();
     }
 
+
     @Override
-    public void updateStudent(String firstName, String lastName, String email) {
+    public void updateStudent(Student student) {
         Query updateQuery = entityManager.createNativeQuery("UPDATE student SET firstname = :firstname, lastname = :lastname WHERE email = :email", Student.class);
-        updateQuery.setParameter("firstname", firstName)
-                   .setParameter("lastname", lastName)
-                   .setParameter("email", email)
+        updateQuery.setParameter("firstname", student.getFirstName())
+                   .setParameter("lastname", student.getLastName())
+                   .setParameter("email", student.getEmail())
                    .executeUpdate();
     }
 
+
     @Override
     public void updateStudentPartial(Student student) {
-        Student studentFound = (Student)entityManager.createQuery("SELECT s FROM Student s WHERE s.email = :email")
+        Student studentFound = (Student) entityManager.createQuery("SELECT s FROM Student s WHERE s.email = :email")
                 .setParameter("email", student.getEmail()).getSingleResult();
 
         Query query = entityManager.createQuery("UPDATE Student SET firstname = :studentfirstname WHERE email = :email");
@@ -66,4 +70,5 @@ public class StudentTransaction implements StudentTransactionAccess{
                 .setParameter("email", studentFound.getEmail())
                 .executeUpdate();
     }
+
 }

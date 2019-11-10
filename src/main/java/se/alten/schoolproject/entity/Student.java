@@ -3,12 +3,8 @@ package se.alten.schoolproject.entity;
 import lombok.*;
 import se.alten.schoolproject.model.StudentModel;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
 import javax.persistence.*;
 import java.io.Serializable;
-import java.io.StringReader;
 
 @Entity
 @Table(name="student")
@@ -32,7 +28,27 @@ public class Student implements Serializable {
     @Column(name = "email", unique = true)
     private String email;
 
-    public Student toEntity(String studentJsonString) {
+    public Student(StudentModel studentModel) {
+        this.firstName = studentModel.getFirstname();
+        this.lastName  = studentModel.getLastname();
+        this.email     = studentModel.getEmail();
+    }
+
+
+    /*public Student toEntityFromModel(StudentModel studentModel) {
+
+        Student student = new Student();
+
+        student.setFirstName(studentModel.getFirstName());
+        student.setLastName(studentModel.getLastName());
+        student.setEmail(studentModel.getEmail());
+
+        return student;
+
+    }*/
+
+
+    /*public Student toEntity(String studentJsonString) {
         JsonReader reader = Json.createReader(new StringReader(studentJsonString));
 
         JsonObject jsonObject = reader.readObject();
@@ -56,6 +72,12 @@ public class Student implements Serializable {
             student.setEmail("");
         }
 
+        //Student student = new Gson().fromJson(studentJsonString, Student.class);
+
+        //return new Gson().fromJson(studentJsonString, Student.class);
+
         return student;
-    }
+
+    }*/
+
 }
