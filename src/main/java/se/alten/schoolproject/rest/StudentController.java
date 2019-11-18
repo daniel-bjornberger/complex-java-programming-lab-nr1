@@ -4,6 +4,7 @@ import lombok.NoArgsConstructor;
 import se.alten.schoolproject.dao.SchoolAccessLocal;
 import se.alten.schoolproject.model.ModelExceptions;
 import se.alten.schoolproject.model.StudentModel;
+import se.alten.schoolproject.transaction.TransactionExceptions;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -25,12 +26,14 @@ public class StudentController {
     @Path("/getallstudents")
     @Produces({"application/JSON"})
     public Response getAllStudents() {
+
         try {
             List studentModelList = schoolAccessLocal.listAllStudents();
             return Response.ok(studentModelList).build();
         } catch (Exception e) {
             return Response.status(Response.Status.CONFLICT).build();
         }
+
     }
 
 
@@ -40,65 +43,91 @@ public class StudentController {
     @Produces({"application/JSON"})
     public Response addStudent(String studentJsonString) {
 
-        System.out.println("PRINT IN CONSOLE: addStudent");
-
         try {
-
             StudentModel studentModel = schoolAccessLocal.addStudent(studentJsonString);
-
-            //StudentModel answer = sal.addStudent(studentJsonString);
-
-            System.out.println("PRINT IN CONSOLE: " + studentModel.getFirstname());
-
-            /*switch ( answer.getFirstName()) {
-                case "empty":
-                    return Response.status(Response.Status.NOT_ACCEPTABLE).entity("{\"Fill in all details please\"}").build();
-                case "duplicate":
-                    return Response.status(Response.Status.EXPECTATION_FAILED).entity("{\"Email already registered!\"}").build();
-                default:
-                    return Response.ok(answer).build();
-            }*/
-
             return Response.ok(studentModel).build();
-
         } catch (ModelExceptions.MissingValueException e) {
-            System.out.println("PRINT IN CONSOLE: EXCEPTION IN STUDENTCONTROLLER!");
-            return Response.status(Response.Status.NOT_ACCEPTABLE).entity(e.getMessage()).build();
+            return Response.status(Response.Status.NOT_ACCEPTABLE).type(MediaType.TEXT_PLAIN)
+                    .entity(e.getMessage()).build();
+        } catch (TransactionExceptions.DuplicateEmailException e) {
+            return Response.status(Response.Status.CONFLICT).type(MediaType.TEXT_PLAIN)
+                    .entity(e.getMessage()).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
         }
+
     }
 
 
     @DELETE
     @Path("deletestudent/{email}")
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Produces({"text/plain"})
     public Response deleteStudent(@PathParam("email") String email) {
+
         try {
             schoolAccessLocal.removeStudent(email);
-            return Response.ok().build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
+            return Response.ok().type(MediaType.TEXT_PLAIN)
+                    .entity("The student was deleted from the database.").build();
+        } catch (TransactionExceptions.EmailNotFoundException e) {
+            return Response.status(Response.Status.NOT_FOUND).type(MediaType.TEXT_PLAIN)
+                    .entity(e.getMessage()).build();
         }
+
     }
 
 
     @PUT
     @Path("updatestudent")
-    public void updateStudent(@QueryParam("firstname") String firstName, @QueryParam("lastname") String lastName, @QueryParam("email") String email) {
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Produces({"application/JSON"})
+    public Response updateStudent(@QueryParam("firstname") String firstName, @QueryParam("lastname") String lastName, @QueryParam("email") String email) {
+
         try {
-            schoolAccessLocal.updateStudent(firstName, lastName, email);
+            StudentModel studentModel = schoolAccessLocal.updateStudent(firstName, lastName, email);
+            return Response.ok(studentModel).build();
         } catch (ModelExceptions.MissingValueException e) {
-            //e.printStackTrace();
+            return Response.status(Response.Status.NOT_ACCEPTABLE).type(MediaType.TEXT_PLAIN)
+                    .entity(e.getMessage()).build();
+        } catch (TransactionExceptions.EmailNotFoundException e) {
+            return Response.status(Response.Status.NOT_FOUND).type(MediaType.TEXT_PLAIN)
+                    .entity(e.getMessage()).build();
         }
+
     }
 
 
     @PATCH
-    @Path("updatestudentpartial")
-    public void updateStudentPartial(String studentJsonString) {
+    @Path("updatefirstname")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces({"application/JSON"})
+    public Response updateFirstName(String studentJsonString) {     // This method was originally called:
+                                                                    // 'updatePartialAStudent'
+        try {
+            StudentModel studentModel = schoolAccessLocal.updateFirstName(studentJsonString);
+            return Response.ok(studentModel).build();
+        } catch (ModelExceptions.MissingValueException e) {
+            return Response.status(Response.Status.NOT_ACCEPTABLE).type(MediaType.TEXT_PLAIN)
+                    .entity(e.getMessage()).build();
+        } catch (TransactionExceptions.LastNameAndEmailNotFoundException e) {
+            return Response.status(Response.Status.NOT_FOUND).type(MediaType.TEXT_PLAIN)
+                    .entity(e.getMessage()).build();
+        }
+
+    }
+
+
+    @GET
+    @Path("findstudentsbylastname/{lastname}")
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Produces({"application/JSON"})
+    public Response findStudentsByLastName(@PathParam("lastname") String lastName) {
 
         try {
-            schoolAccessLocal.updateStudentPartial(studentJsonString);
-        } catch (ModelExceptions.MissingValueException e) {
-            //e.printStackTrace();
+            List studentModelList = schoolAccessLocal.findStudentsByLastName(lastName);
+            return Response.ok(studentModelList).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.CONFLICT).build();
         }
 
     }

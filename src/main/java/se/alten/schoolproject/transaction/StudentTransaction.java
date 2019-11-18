@@ -20,55 +20,92 @@ public class StudentTransaction implements StudentTransactionAccess{
 
     @Override
     public List listAllStudents() {
+
         Query query = entityManager.createQuery("SELECT s from Student s");
         return query.getResultList();
+
     }
 
 
     @Override
-    public void addStudent(Student student) {
+    public void addStudent(Student student) throws TransactionExceptions.DuplicateEmailException {
+
         try {
             entityManager.persist(student);
             entityManager.flush();
         } catch (PersistenceException pe) {
-            //student.setFirstName("duplicate");
-            System.out.println("PERSISTENCE EXCEPTION!");
+            throw new TransactionExceptions.DuplicateEmailException(student.getEmail());
         }
+
     }
 
 
     @Override
-    public void removeStudent(String email) {
-        //JPQL Query
+    public void removeStudent(String email) throws TransactionExceptions.EmailNotFoundException {
+
         Query query = entityManager.createQuery("DELETE FROM Student s WHERE s.email = :email");
 
-        //Native Query
-        //Query query = entityManager.createNativeQuery("DELETE FROM student WHERE email = :email", Student.class);
+        int numberOfStudentsRemoved = query.setParameter("email", email).executeUpdate();
 
-        query.setParameter("email", email)
-             .executeUpdate();
+        if (numberOfStudentsRemoved == 0) {
+            throw new TransactionExceptions.EmailNotFoundException(email);
+        }
+
     }
 
 
     @Override
-    public void updateStudent(Student student) {
+    public void updateStudent(Student student) throws TransactionExceptions.EmailNotFoundException {
+
         Query updateQuery = entityManager.createNativeQuery("UPDATE student SET firstname = :firstname, lastname = :lastname WHERE email = :email", Student.class);
-        updateQuery.setParameter("firstname", student.getFirstName())
-                   .setParameter("lastname", student.getLastName())
-                   .setParameter("email", student.getEmail())
-                   .executeUpdate();
+
+        int numberOfStudentsUpdated = updateQuery.setParameter("firstname", student.getFirstName())
+                .setParameter("lastname", student.getLastName())
+                .setParameter("email", student.getEmail())
+                .executeUpdate();
+
+        if (numberOfStudentsUpdated == 0) {
+            throw new TransactionExceptions.EmailNotFoundException(student.getEmail());
+        }
+
     }
 
 
     @Override
-    public void updateStudentPartial(Student student) {
-        Student studentFound = (Student) entityManager.createQuery("SELECT s FROM Student s WHERE s.email = :email")
-                .setParameter("email", student.getEmail()).getSingleResult();
+    public void updateFirstName(Student student) throws TransactionExceptions.LastNameAndEmailNotFoundException {
 
-        Query query = entityManager.createQuery("UPDATE Student SET firstname = :studentfirstname WHERE email = :email");
+        Student studentFound;
+
+        try {
+            studentFound = (Student) entityManager
+                    .createQuery("SELECT s FROM Student s WHERE s.lastName = :lastname AND s.email = :email")
+                    .setParameter("lastname", student.getLastName())
+                    .setParameter("email", student.getEmail())
+                    .getSingleResult();
+        } catch (PersistenceException pe) {
+            throw new TransactionExceptions
+                    .LastNameAndEmailNotFoundException(student.getLastName(), student.getEmail());
+        }
+
+        Query query = entityManager
+                .createQuery("UPDATE Student SET firstname = :studentfirstname WHERE lastName = :lastname AND email = :email");
+
         query.setParameter("studentfirstname", student.getFirstName())
+                .setParameter("lastname", studentFound.getLastName())
                 .setParameter("email", studentFound.getEmail())
                 .executeUpdate();
+
+    }
+
+
+    @Override
+    public List findStudentsByLastName(String lastName) {
+
+        return entityManager
+                .createQuery("SELECT s FROM Student s WHERE s.lastName = :lastname")
+                .setParameter("lastname", lastName)
+                .getResultList();
+
     }
 
 }
