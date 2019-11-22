@@ -61,7 +61,7 @@ A Json object representing the updated student will be returned, if all three Js
 ### find students by last name
 Address: http://localhost:8080/school/student/findstudentsbylastname/{lastname}  
 HTTP method: GET  
-Body: None
+Body: None  
 Example:
 <pre>
 http://localhost:8080/school/student/findstudentsbylastname/andersson
@@ -71,5 +71,5 @@ An array of Json objects representing the students with the requested last name 
 ___
 <br/>
 "Vem som gjort vad": Jag har arbetat ensam på den här labben, så allt är gjort av mig.  
-<br/>
+<br/><br/>
 "Stötte ni på problem som ni inte förstod hur man ska lösa": Nej, de problem som har jag har stött på har jag lyckats lösa. Den stora frågan är om det finns något i koden som jag borde ha rättat, men som jag inte har insett att jag borde ha ändrat. Det är möjligt.
